@@ -49,27 +49,6 @@
                     </a>
                 </li>
 
-                <!-- Pagos -->
-                <li class="nav-item" sec:authorize="hasAnyRole('ADMIN','RECEPCIONISTA')">
-                    <a class="nav-link" th:href="@{/pagos}">
-                        <i class="bi bi-cash-stack me-1"></i> Pagos
-                    </a>
-                </li>
-
-                <!-- Descuentos -->
-                <li class="nav-item" sec:authorize="hasAnyRole('ADMIN','RECEPCIONISTA')">
-                    <a class="nav-link" th:href="@{/descuentos}">
-                        <i class="bi bi-tag me-1"></i> Descuentos
-                    </a>
-                </li>
-
-                <!-- Reportes -->
-                <li class="nav-item" sec:authorize="hasRole('ADMIN')">
-                    <a class="nav-link" th:href="@{/reportes}">
-                        <i class="bi bi-file-earmark-pdf me-1"></i> Reportes
-                    </a>
-                </li>
-
                 <!-- Admin: usuarios y bitácora -->
                 <li class="nav-item dropdown" sec:authorize="hasRole('ADMIN')">
                     <a class="nav-link dropdown-toggle" href="#" role="button"
