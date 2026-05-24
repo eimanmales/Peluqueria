@@ -45,6 +45,22 @@
                                        min="5" max="240" placeholder="30" required/>
                             </div>
                         </div>
+                        <!-- Subida de imagen -->
+                        <div class="mb-3">
+                          <label class="form-label fw-semibold">Imagen del servicio</label>
+                          <!-- Vista previa de imagen actual -->
+                          <div th:if="${servicio.imagenUrl}" class="mb-2">
+                            <img th:src="${servicio.imagenUrl}" id="preview"
+                                 class="img-fluid w-100" alt="Imagen actual"/>
+                            <small class="text-muted">Imagen actual — sube una nueva para reemplazarla</small>
+                          </div>
+                          <div th:unless="${servicio.imagenUrl}" class="mb-2">
+                            <img id="preview" src="#" class="img-fluid w-100 d-none" alt="Vista previa"/>
+                          </div>
+                          <input type="file" name="imagenArchivo" class="form-control"
+                                 accept="image/*" onchange="mostrarPrevia(this)"/>
+                          <div class="form-text">Formatos: JPG, PNG, WEBP. Máximo 5 MB.</div>
+                        </div>
 
                         <div class="d-flex gap-2 mt-2">
                             <button type="submit" class="btn btn-dark flex-fill">
