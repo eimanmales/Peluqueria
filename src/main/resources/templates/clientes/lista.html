@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="es" xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <title>Clientes — Peluquería</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"/>
+    <style>body{background:#f0f2f5;}</style>
+</head>
+<body>
+<div th:replace="~{fragments/navbar :: navbar}"></div>
+<div class="container py-4">
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h4 class="fw-bold mb-0"><i class="bi bi-people me-2"></i>Clientes</h4>
+        <a th:href="@{/clientes/nuevo}" class="btn btn-dark">
+            <i class="bi bi-plus-lg me-1"></i>Nuevo Cliente
+        </a>
+    </div>
+
+    <!-- Mensajes -->
+    <div th:if="${exito}" class="alert alert-success alert-dismissible fade show">
+        <i class="bi bi-check-circle me-1"></i><span th:text="${exito}"></span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+
+    <!-- Buscador -->
+    <form th:action="@{/clientes}" method="get" class="mb-4">
+        <div class="input-group" style="max-width:400px">
+            <input type="text" name="buscar" class="form-control"
+                   placeholder="Buscar por nombre..." th:value="${buscar}"/>
+            <button class="btn btn-dark" type="submit"><i class="bi bi-search"></i></button>
+            <a th:href="@{/clientes}" class="btn btn-outline-secondary">Limpiar</a>
+        </div>
+    </form>
+
+    <!-- Tabla de clientes -->
+    <div class="card shadow-sm">
+        <div class="table-responsive">
+            <table class="table table-hover mb-0">
+                <thead class="table-dark">
+                    <tr>
+                        <th>#</th>
+                        <th>Nombre</th>
+                        <th>Teléfono</th>
+                        <th>Correo</th>
+                        <th class="text-center">Cortes</th>
+                        <th class="text-center">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="c : ${clientes}">
+                        <td th:text="${c.id}"></td>
+                        <td class="fw-semibold" th:text="${c.getNombreCompleto()}"></td>
+                        <td th:text="${c.telefono ?: '—'}"></td>
+                        <td th:text="${c.email ?: '—'}"></td>
+                        <td class="text-center">
+                            <span class="badge bg-primary rounded-pill"
+                                  th:text="${c.cortesAcumulados}"></span>
+                        </td>
+                        <td class="text-center">
+                            <a th:href="@{/clientes/editar/{id}(id=${c.id})}"
+                               class="btn btn-sm btn-outline-secondary me-1">
+                                <i class="bi bi-pencil"></i>
+                            </a>
+                            <a th:href="@{/clientes/eliminar/{id}(id=${c.id})}"
+                               class="btn btn-sm btn-outline-danger"
+                               sec:authorize="hasRole('ADMIN')"
+                               onclick="return confirm('¿Eliminar este cliente?')">
+                                <i class="bi bi-trash"></i>
+                            </a>
+                        </td>
+                    </tr>
+                    <tr th:if="${#lists.isEmpty(clientes)}">
+                        <td colspan="6" class="text-center text-muted py-4">
+                            No se encontraron clientes.
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body></html>
