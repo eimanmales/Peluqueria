@@ -1,6 +1,7 @@
 package com.ProgramacionV.Peluqueria.service;
 
 import com.ProgramacionV.Peluqueria.entity.Cita;
+import com.ProgramacionV.Peluqueria.service.ClienteService;
 import com.ProgramacionV.Peluqueria.entity.EstadoCita;
 import com.ProgramacionV.Peluqueria.entity.Usuario;
 import com.ProgramacionV.Peluqueria.repository.CitaRepository;
@@ -15,6 +16,9 @@ public class CitaService {
 
     @Autowired
     private CitaRepository citaRepository;
+    
+    @Autowired
+    private ClienteService clienteService;
 
     // Retorna todas las citas
     public List<Cita> listarTodas() {
@@ -71,12 +75,26 @@ public class CitaService {
     }
 
     // Cambia el estado de una cita (PENDIENTE → EN_CURSO → COMPLETADA)
+    
     public void cambiarEstado(Long id, EstadoCita nuevoEstado) {
         citaRepository.findById(id).ifPresent(c -> {
+
+            // 🔴 importante: guardar estado anterior
+            EstadoCita estadoAnterior = c.getEstado();
+
             c.setEstado(nuevoEstado);
+
+            // ✅ SUMAR CORTE SOLO UNA VEZ
+            if (nuevoEstado == EstadoCita.COMPLETADA 
+                && estadoAnterior != EstadoCita.COMPLETADA) {
+
+                clienteService.sumarCorte(c.getCliente().getId());
+            }
+
             citaRepository.save(c);
         });
     }
+
 
     // Cancela una cita
     public void cancelar(Long id) {

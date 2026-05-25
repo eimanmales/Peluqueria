@@ -15,7 +15,7 @@ public class ClienteService {
 
     // Retorna todos los clientes ordenados por apellido
     public List<Cliente> listarTodos() {
-        return clienteRepository.findByOrderByApellidoAsc();
+        return clienteRepository.findByOrderByNombreAscApellidoAsc();
     }
 
     // Busca clientes por nombre o apellido

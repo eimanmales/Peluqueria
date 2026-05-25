@@ -2,6 +2,9 @@ package com.ProgramacionV.Peluqueria.service;
 
 import com.ProgramacionV.Peluqueria.entity.Cita;
 import com.ProgramacionV.Peluqueria.entity.Pago;
+import com.ProgramacionV.Peluqueria.entity.Cliente;
+import com.ProgramacionV.Peluqueria.entity.Descuento;
+import com.ProgramacionV.Peluqueria.repository.CitaRepository;
 import com.ProgramacionV.Peluqueria.repository.PagoRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -19,9 +22,15 @@ public class PagoService {
 
     @Autowired
     private PagoRepository pagoRepository;
+    
+    @Autowired
+    private CitaRepository citaRepository;
 
     @Autowired
     private ClienteService clienteService;
+    
+    @Autowired
+    private DescuentoService descuentoService;
 
     // ── Consultas ────────────────────────────────────────────
 
@@ -57,18 +66,44 @@ public class PagoService {
      * Registra un pago, genera el número de factura automáticamente
      * y suma un corte acumulado al cliente de la cita.
      */
+    
+    
     @Transactional
     public Pago registrar(Pago pago) {
-        pago.setFecha(LocalDateTime.now());
-        pago.setNumeroFactura(generarNumeroFactura());
-        Pago pagoPersistido = pagoRepository.save(pago);
 
-        // Sumar corte acumulado al cliente (para el sistema de descuentos)
-        if (pago.getCita() != null && pago.getCita().getCliente() != null) {
-            clienteService.sumarCorte(pago.getCita().getCliente().getId());
+        if (pago.getCita() != null) {
+
+            // 🔥 VOLVER A TRAER CITA COMPLETA
+            Cita cita = citaRepository.findById(
+                    pago.getCita().getId()
+            ).orElseThrow();
+
+            Cliente cliente = cita.getCliente();
+
+            Descuento descuento = descuentoService
+                    .buscarDescuentoAplicable(cliente.getId());
+
+            if (descuento != null) {
+
+                BigDecimal montoOriginal = pago.getMonto();
+
+                BigDecimal descuentoValor = montoOriginal
+                        .multiply(descuento.getPorcentaje())
+                        .divide(BigDecimal.valueOf(100));
+
+                pago.setMonto(montoOriginal.subtract(descuentoValor));
+            }
+
+            // ✅ asignar cita real al pago
+            pago.setCita(cita);
         }
-        return pagoPersistido;
+
+        pago.setNumeroFactura("FAC-" + System.currentTimeMillis());
+
+        return pagoRepository.save(pago);
     }
+
+
 
     // ── Generación de número de factura ──────────────────────
 

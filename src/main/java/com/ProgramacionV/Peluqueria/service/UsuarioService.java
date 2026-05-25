@@ -43,9 +43,26 @@ public class UsuarioService {
     }
 
     @Transactional
-    public Usuario guardar(Usuario usuario) {
+    public Usuario guardarr(Usuario usuario) {
         return usuarioRepository.save(usuario);
     }
+    
+    
+    public Usuario guardar(Usuario usuario) {
+
+        if (usuario.getId() != null) {
+            // está editando usuario existente
+            Usuario existente = usuarioRepository.findById(usuario.getId()).orElseThrow();
+
+            if (usuario.getPassword() == null || usuario.getPassword().isBlank()) {
+                // 🔥 mantener la contraseña anterior
+                usuario.setPassword(existente.getPassword());
+            }
+        }
+
+        return usuarioRepository.save(usuario);
+    }
+
 
     @Transactional
     public void desactivar(Long id) {

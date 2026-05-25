@@ -17,7 +17,7 @@
                     <h5 class="mb-0"><i class="bi bi-scissors me-2"></i><span th:text="${titulo}"></span></h5>
                 </div>
                 <div class="card-body">
-                    <form th:action="@{/servicios/guardar}" th:object="${servicio}" method="post">
+                    <form th:action="@{/servicios/guardar}" th:object="${servicio}" method="post" enctype="multipart/form-data">
                         <input type="hidden" th:field="*{id}"/>
                         <input type="hidden" th:field="*{activo}"/>
 

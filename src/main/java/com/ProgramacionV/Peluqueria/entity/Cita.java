@@ -23,6 +23,11 @@ public class Cita {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "servicio_id", nullable = false)
     private Servicio servicio;
+    
+    
+    @OneToOne(mappedBy = "cita")
+    private Pago pago;
+
 
     // El peluquero asignado a esta cita
     @ManyToOne(fetch = FetchType.LAZY)

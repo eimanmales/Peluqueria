@@ -6,5 +6,5 @@ import java.util.List;
 
 public interface ClienteRepository extends JpaRepository<Cliente, Long> {
     List<Cliente> findByNombreContainingIgnoreCaseOrApellidoContainingIgnoreCase(String nombre, String apellido);
-    List<Cliente> findByOrderByApellidoAsc();
+    List<Cliente> findByOrderByNombreAscApellidoAsc();
 }

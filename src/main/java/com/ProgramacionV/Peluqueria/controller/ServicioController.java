@@ -18,23 +18,23 @@ public class ServicioController {
     @Autowired private ServicioService servicioService;
     @Autowired private ImagenService   imagenService;
 
-    // GET /servicios → lista todos los servicios
     @GetMapping
     public String listar(Model modelo) {
         modelo.addAttribute("servicios", servicioService.listarTodos());
         return "servicios/lista";
     }
 
-    // GET /servicios/nuevo → formulario para crear un servicio
     @GetMapping("/nuevo")
     @PreAuthorize("hasAnyRole('ADMIN','RECEPCIONISTA')")
     public String formularioNuevo(Model modelo) {
-        modelo.addAttribute("servicio", new Servicio());
+        Servicio servicio = new Servicio();
+        servicio.setActivo(true);        // ← CORRECCIÓN: evita null
+        servicio.setDuracionMinutos(30);
+        modelo.addAttribute("servicio", servicio);
         modelo.addAttribute("titulo", "Nuevo Servicio");
         return "servicios/formulario";
     }
 
-    // GET /servicios/editar/{id} → formulario para editar un servicio
     @GetMapping("/editar/{id}")
     @PreAuthorize("hasAnyRole('ADMIN','RECEPCIONISTA')")
     public String formularioEditar(@PathVariable Long id, Model modelo,
@@ -49,16 +49,17 @@ public class ServicioController {
         return "servicios/formulario";
     }
 
-    // POST /servicios/guardar → guarda el servicio con imagen opcional
     @PostMapping("/guardar")
     @PreAuthorize("hasAnyRole('ADMIN','RECEPCIONISTA')")
-    public String guardar(@ModelAttribute Servicio servicio,
-                          @RequestParam("imagenArchivo") MultipartFile imagenArchivo,
-                          RedirectAttributes flash) {
+    public String guardar(
+            @ModelAttribute Servicio servicio,
+            @RequestParam(name = "imagenArchivo", required = false) MultipartFile imagenArchivo,
+            RedirectAttributes flash) {
         try {
-            // Si se sube una imagen nueva, guardarla y actualizar la URL
-            if (!imagenArchivo.isEmpty()) {
-                // Eliminar la imagen anterior si existía
+            if (servicio.getActivo() == null) {
+                servicio.setActivo(true);  // ← CORRECCIÓN: null safety
+            }
+            if (imagenArchivo != null && !imagenArchivo.isEmpty()) {
                 imagenService.eliminarImagen(servicio.getImagenUrl());
                 String nuevaUrl = imagenService.guardarImagen(imagenArchivo);
                 servicio.setImagenUrl(nuevaUrl);
@@ -66,12 +67,11 @@ public class ServicioController {
             servicioService.guardar(servicio);
             flash.addFlashAttribute("exito", "Servicio guardado correctamente.");
         } catch (Exception e) {
-            flash.addFlashAttribute("error", "Error al guardar la imagen: " + e.getMessage());
+            flash.addFlashAttribute("error", "Error: " + e.getMessage());
         }
         return "redirect:/servicios";
     }
 
-    // GET /servicios/desactivar/{id} → desactiva un servicio
     @GetMapping("/desactivar/{id}")
     @PreAuthorize("hasRole('ADMIN')")
     public String desactivar(@PathVariable Long id, RedirectAttributes flash) {

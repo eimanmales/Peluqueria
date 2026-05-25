@@ -57,8 +57,9 @@ public class PagoController {
         // Citas COMPLETADAS sin pago previo
         modelo.addAttribute("citas", citaService.listarTodas().stream()
                 .filter(c -> c.getEstado() == EstadoCita.COMPLETADA)
+                .filter(c -> c.getPago() == null)
                 .toList());
-        return "pagos/formulario";
+        return "pagos/formulario"; 
     }
 
     // POST /pagos/registrar → registra el pago y genera factura
